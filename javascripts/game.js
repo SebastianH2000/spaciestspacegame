@@ -39,6 +39,9 @@ setInterval("mainLoop()",fpsInv);*/
 
 
 // module aliases
+//scaleWindow();
+
+// module aliases
 var Engine = Matter.Engine,
     Render = Matter.Render,
     Runner = Matter.Runner,
@@ -109,7 +112,7 @@ for (let i = 0; i < WorldArr.length; i++) {
                     WorldArr[i][j].box = Bodies.rectangle(fromBijective(i)*boxSize+400,fromBijective(j)*boxSize+200,boxSize,boxSize);
                     WorldArr[i][j].generated = true;
                 }
-                if (upBox !== false && upBox !== undefined) {
+                /*if (upBox !== false && upBox !== undefined) {
                     if (upBox.type === 1 || upBox.type === 2) {
                         if (!WorldArr[i][toBijective(fromBijective(j)+1)].generated) {
                         WorldArr[i][toBijective(fromBijective(j)+1)].box = Bodies.rectangle(fromBijective(i)*boxSize+400,(fromBijective(j)+1)*boxSize+200,boxSize,boxSize);
@@ -140,7 +143,7 @@ for (let i = 0; i < WorldArr.length; i++) {
                             stiffness: 0.75,
                         }));
                     }
-                }
+                }*/
             }
             boxArr.push(WorldArr[i][j].box);
         }
@@ -157,9 +160,11 @@ for (let i = 0; i < WorldArr.length; i++) {
     damping: 1
 }));*/
 
-var spaceship1 = Matter.Composite.create();
-Composite.add(spaceship1,boxArr);
-Composite.add(spaceship1,constraintArr);
+var spaceship1 = Matter.Body.create({
+    parts: boxArr
+});
+//Composite.add(spaceship1,boxArr);
+//Composite.add(spaceship1,constraintArr);
 
 
 /*var boxA = Bodies.rectangle(400, 200, 80, 80);
@@ -214,6 +219,52 @@ var runner = Runner.create();
 // run the engine
 Runner.run(runner, engine);
 
+//keyboard input
+var map = {}; // You could also use an array
+//wsad
+map[87] = false;
+map[83] = false;
+map[65] = false;
+map[68] = false;
+
+//^v<>
+map[38] = false;
+map[40] = false;
+map[37] = false;
+map[39] = false;
+
+map[32] = false;
+
+onkeydown = onkeyup = function(e){
+  e = e || event; // to deal with IE
+  map[e.keyCode] = e.type == 'keydown';
+  /* insert conditional here */
+}
+
 setInterval(() => {
-    Matter.Body.applyForce(boxArr[0], {x: WorldArr[0][0].box.position.x, y: WorldArr[0][0].box.position.y+40}, {x: Math.cos(WorldArr[0][0].box.angle) * 0.001, y: Math.sin(WorldArr[0][0].box.angle+Math.PI/2) * 0.0001});
+    if (map[87] || map[38]) {
+        for (let i = 0; i < boxArr.length; i++) {
+            //Matter.Body.set(spaceship1,{speed: options.speed},Math.min(spaceship1.speed+0.001,0.25))
+            //Matter.Body.applyForce(spaceship1, {x: boxArr[i].position.x, y: boxArr[i].position.y+40}, {x: Math.cos(spaceship1.angle+Math.PI*0.5) * 0.0001, y: Math.sin(spaceship1.angle+Math.PI*0.5) * 0.0001});
+            Matter.Body.applyForce(spaceship1, {x: boxArr[i].position.x, y: boxArr[i].position.y}, {x: Math.cos(spaceship1.angle+Math.PI*0.5) * 0.0001, y: Math.sin(spaceship1.angle+Math.PI*0.5) * 0.0001});
+            //Matter.Body.applyForce(spaceship1, {x: boxArr[i].position.x, y: boxArr[i].position.y+40}, {x: 0, y: 0.0001});
+        }
+    }
+    if (map[83] || map[40]) {
+        for (let i = 0; i < boxArr.length; i++) {
+            Matter.Body.applyForce(spaceship1, {x: boxArr[i].position.x, y: boxArr[i].position.y}, {x: Math.cos(spaceship1.angle+Math.PI*1.5) * 0.0001, y: Math.sin(spaceship1.angle+Math.PI*1.5) * 0.0001});
+        }
+    }
+    if (map[65] || map[37]) {
+        for (let i = 0; i < boxArr.length; i++) {
+            Matter.Body.setAngularVelocity(spaceship1,Math.max(spaceship1.angularVelocity-0.0001,-0.025));
+            //Matter.Body.applyForce(spaceship1, {x: boxArr[i].position.x, y: boxArr[i].position.y+40}, {x: Math.cos(spaceship1.angle-Math.PI) * 0.00001, y: Math.sin(spaceship1.angle-Math.PI) * 0.00001});
+        }
+    }
+    if (map[68] || map[39]) {
+        for (let i = 0; i < boxArr.length; i++) {
+            Matter.Body.setAngularVelocity(spaceship1,Math.min(spaceship1.angularVelocity+0.0001,0.025));
+            //Matter.Body.applyForce(spaceship1, {x: boxArr[i].position.x, y: boxArr[i].position.y+40}, {x: Math.cos(spaceship1.angle) * 0.00001, y: Math.sin(spaceship1.angle) * 0.00001});
+        }
+    }
 }, 10);
